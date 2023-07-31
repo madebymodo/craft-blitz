@@ -102,6 +102,14 @@ class LocalWarmer extends BaseCacheWarmer
      */
     private function _warmUri(SiteUriModel $siteUri): bool
     {
+        // Shortcut to skip page generation if already available in the cache
+        $content = Blitz::$plugin->cacheStorage->get($siteUri);
+
+        if (!empty($content)) {
+            Blitz::$plugin->debug('Skipping page warming because it is already cached', [], $siteUri->getUrl());
+            return true;
+        }
+
         $url = $siteUri->getUrl();
 
         // Parse the URI rather than getting it from `$siteUri` to ensure we have the full request URI (important!)
@@ -168,6 +176,7 @@ class LocalWarmer extends BaseCacheWarmer
             }
 
             Blitz::$plugin->generateCache->save($response->data, $siteUri);
+            Blitz::$plugin->debug('Successfully generated page', [], $siteUri->getUrl());
         }
         catch (Exception $e) {
             Blitz::$plugin->debug($e->getMessage());
