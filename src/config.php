@@ -223,5 +223,11 @@ return [
         //     'headers' => ['Host' => 'injenia.ddev.site'],
         // ],
 
+        // Guzzle URL replacements (key is the site actual domain, value is the domain Guzzle will call)
+        // Make sure to provide a Host header in guzzleConfig if you are aliasing a domain
+        // 'guzzleUrlReplacements' => [
+        //     'host.domain' => 'alias.domain',
+        // ],
+
     ],
 ];

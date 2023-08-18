@@ -319,6 +319,11 @@ class SettingsModel extends Model {
      */
     public $guzzleConfig = [];
 
+    /**
+     * @var array Guzzle URL replacements
+     */
+    public $guzzleUrlReplacements = [];
+
     // Public Methods
     // =========================================================================
 
