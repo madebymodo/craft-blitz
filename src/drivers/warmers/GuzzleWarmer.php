@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) PutYourLightsOn
  */
@@ -17,8 +18,7 @@ use putyourlightson\blitz\helpers\SiteUriHelper;
 /**
  * @property mixed $settingsHtml
  */
-class GuzzleWarmer extends BaseCacheWarmer
-{
+class GuzzleWarmer extends BaseCacheWarmer {
     // Properties
     // =========================================================================
 
@@ -33,8 +33,7 @@ class GuzzleWarmer extends BaseCacheWarmer
     /**
      * @inheritdoc
      */
-    public static function displayName(): string
-    {
+    public static function displayName(): string {
         return Craft::t('blitz', 'Guzzle Warmer (recommended)');
     }
 
@@ -44,14 +43,12 @@ class GuzzleWarmer extends BaseCacheWarmer
     /**
      * @inheritdoc
      */
-    public function warmUris(array $siteUris, callable $setProgressHandler = null, int $delay = null, bool $queue = true)
-    {
+    public function warmUris(array $siteUris, callable $setProgressHandler = null, int $delay = null, bool $queue = true) {
         $siteUris = $this->beforeWarmCache($siteUris);
 
         if ($queue) {
             CacheWarmerHelper::addWarmerJob($siteUris, 'warmUrisWithProgress', $delay);
-        }
-        else {
+        } else {
             $this->warmUrisWithProgress($siteUris, $setProgressHandler);
         }
 
@@ -65,8 +62,7 @@ class GuzzleWarmer extends BaseCacheWarmer
      * @param callable|null $setProgressHandler
      * @param int|null $delay
      */
-    public function warmUrisWithProgress(array $siteUris, callable $setProgressHandler = null, int $delay = null)
-    {
+    public function warmUrisWithProgress(array $siteUris, callable $setProgressHandler = null, int $delay = null) {
         $urls = SiteUriHelper::getUrlsFromSiteUris($siteUris);
 
         $count = 0;
@@ -75,12 +71,12 @@ class GuzzleWarmer extends BaseCacheWarmer
 
         $this->delay($setProgressHandler, $delay, $count, $total);
 
-        $client = Craft::createGuzzleClient();
+        $client = Craft::createGuzzleClient(Blitz::$plugin->settings->guzzleConfig);
 
         // Create a pool of requests for sending multiple concurrent requests
         $pool = new Pool($client, $this->_getRequests($urls), [
             'concurrency' => $this->concurrency,
-            'fulfilled' => function() use (&$count, $total, $label, $setProgressHandler) {
+            'fulfilled' => function () use (&$count, $total, $label, $setProgressHandler) {
                 $count++;
                 $this->warmed++;
 
@@ -89,7 +85,7 @@ class GuzzleWarmer extends BaseCacheWarmer
                     call_user_func($setProgressHandler, $count, $total, $progressLabel);
                 }
             },
-            'rejected' => function(GuzzleException $reason) use (&$count, $total, $label, $setProgressHandler) {
+            'rejected' => function (GuzzleException $reason) use (&$count, $total, $label, $setProgressHandler) {
                 $count++;
 
                 if (is_callable($setProgressHandler)) {
@@ -108,8 +104,7 @@ class GuzzleWarmer extends BaseCacheWarmer
     /**
      * @inheritdoc
      */
-    public function rules(): array
-    {
+    public function rules(): array {
         return [
             [['concurrency'], 'required'],
             [['concurrency'], 'integer', 'min' => 1, 'max' => 100],
@@ -119,8 +114,7 @@ class GuzzleWarmer extends BaseCacheWarmer
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml()
-    {
+    public function getSettingsHtml() {
         return Craft::$app->getView()->renderTemplate('blitz/_drivers/warmers/guzzle/settings', [
             'warmer' => $this,
         ]);
@@ -137,9 +131,10 @@ class GuzzleWarmer extends BaseCacheWarmer
      *
      * @return Generator
      */
-    private function _getRequests(array $urls): Generator
-    {
+    private function _getRequests(array $urls): Generator {
         foreach ($urls as $url) {
+            $url = str_replace('injenia.ddev.site', 'blitz.ddev.site', $url);
+            Blitz::$plugin->debug('Guzzle warming custom URL', [], $url);
             // Ensure URL is an absolute URL starting with http
             if (stripos($url, 'http') === 0) {
                 yield new Request('GET', $url, [

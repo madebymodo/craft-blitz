@@ -217,5 +217,11 @@ return [
 
         // The name of the JavaScript event that will trigger a script inject.
         //'injectScriptEvent' => 'DOMContentLoaded',
-    ]
+
+        // Guzzle configuration for Blitz
+        // 'guzzleConfig' => [
+        //     'headers' => ['Host' => 'injenia.ddev.site'],
+        // ],
+
+    ],
 ];

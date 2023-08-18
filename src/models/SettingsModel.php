@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) PutYourLightsOn
  */
@@ -15,8 +16,7 @@ use putyourlightson\blitz\drivers\storage\FileStorage;
 use putyourlightson\blitz\drivers\purgers\DummyPurger;
 use putyourlightson\blitz\drivers\warmers\GuzzleWarmer;
 
-class SettingsModel extends Model
-{
+class SettingsModel extends Model {
     // Constants
     // =========================================================================
 
@@ -314,14 +314,18 @@ class SettingsModel extends Model
      */
     public $injectScriptEvent = 'DOMContentLoaded';
 
+    /**
+     * @var array Guzzle configuration for Blitz
+     */
+    public $guzzleConfig = [];
+
     // Public Methods
     // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public function behaviors(): array
-    {
+    public function behaviors(): array {
         return [
             'parser' => [
                 'class' => EnvAttributeParserBehavior::class,
@@ -333,8 +337,7 @@ class SettingsModel extends Model
     /**
      * @inheritdoc
      */
-    public function rules(): array
-    {
+    public function rules(): array {
         return [
             [['cacheStorageType', 'cacheWarmerType', 'queryStringCaching'], 'required'],
             [['cacheStorageType', 'cacheWarmerType', 'cachePurgerType', 'deployerType'], 'string', 'max' => 255],
@@ -351,8 +354,7 @@ class SettingsModel extends Model
     /**
      * @inheritdoc
      */
-    public function attributeLabels(): array
-    {
+    public function attributeLabels(): array {
         $labels = parent::attributeLabels();
 
         // Set the field labels
@@ -364,8 +366,7 @@ class SettingsModel extends Model
     /**
      * Returns custom site URIs as an array
      */
-    public function getCustomSiteUris(): array
-    {
+    public function getCustomSiteUris(): array {
         return is_array($this->customSiteUris) ? $this->customSiteUris : [];
     }
 }
