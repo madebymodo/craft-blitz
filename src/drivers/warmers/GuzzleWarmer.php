@@ -133,11 +133,13 @@ class GuzzleWarmer extends BaseCacheWarmer {
      */
     private function _getRequests(array $urls): Generator {
         foreach ($urls as $url) {
-            $url = strtr($url, Blitz::$plugin->settings->guzzleUrlReplacements);
-            Blitz::$plugin->debug('Guzzle warming custom URL', [], $url);
+            $guzzleUrl = strtr($url, Blitz::$plugin->settings->guzzleUrlReplacements);
+            if ($url !== $guzzleUrl) {
+                Blitz::$plugin->debug('Guzzle warming custom URL', [], $url);
+            }
             // Ensure URL is an absolute URL starting with http
-            if (stripos($url, 'http') === 0) {
-                yield new Request('GET', $url, [
+            if (stripos($guzzleUrl, 'http') === 0) {
+                yield new Request('GET', $guzzleUrl, [
                     self::WARMER_HEADER_NAME => get_class($this),
                 ]);
             }
